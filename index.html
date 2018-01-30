@@ -1,108 +1,116 @@
 <html>
 
-<head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/jquery.inputmask.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"
-          type="text/css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css"
-          type="text/css">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible"
+              content="IE=edge">
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>Calcul de Prime Annualis&eacute;e avec taux pro-rata</title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/jquery.inputmask.bundle.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"
+              type="text/css">
+        <link rel="stylesheet"
+              href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/css/bootstrap.min.css"
+              type="text/css">
 
-    <style>
-        div.row {
-            margin-top: 5px;
-        }
+        <style>
+            div.row {
+                margin-top : 5px;
+            }
+        </style>
 
-        input {
-            width: 115px;
-        }
-    </style>
+        <script>
+            $(document).ready(function () {
+                $('.ui-input-amount').inputmask('decimal', {
+                    numericInput: true,
+                    rightAlign  : false,
+                    greedy      : false
+                });
 
-    <script>
-        $(document).ready(function () {
-            $('.ui-input-amount').inputmask('decimal', {
-                numericInput: true,
-                rightAlign: false,
-                greedy: false
+                $('.ui-input-date').inputmask({mask: '9999-99-99'});
+                $('.ui-input-date').datepicker({'dateFormat': 'yy-mm-dd'});
+
+                $('.ui-btn-calc').click(function () {
+
+                    function precisionRound(number, precision) {
+                        var factor = Math.pow(10, precision);
+                        return Math.round(number * factor) / factor;
+                    }
+
+                    var dateOrig = moment($('.ui-input-date-orig').val(), 'YYYY-MM-DD');
+                    var dateModif = moment($('.ui-input-date-modif').val(), 'YYYY-MM-DD');
+                    var result = dateModif.diff(dateOrig, 'days');
+                    var ratio = 1 - precisionRound((result / 365), 3);
+
+                    var montantModif = numeral($('.ui-input-amount-modif').val());
+
+                    var montantAnnualized = Math.ceil(montantModif.value() / ratio);
+
+                    $('.ui-lbl-rate').val(numeral(ratio).format('0.000'));
+                    $('.ui-lbl-total').val(numeral(montantAnnualized).format('0$'));
+
+                });
             });
+        </script>
 
-            $('.ui-input-date').inputmask({mask: '9999-99-99'});
-            $('.ui-input-date').datepicker({'dateFormat': 'yy-mm-dd'});
+    </head>
+    <body class="container">
 
-            $('.ui-btn-calc').click(function () {
+        <h1>
+            Calcul de Prime Annualis&eacute;e avec taux pro-rata </h1>
 
-                function precisionRound(number, precision) {
-                    var factor = Math.pow(10, precision);
-                    return Math.round(number * factor) / factor;
-                }
+        <br/>
 
+        <div class="row">
+            <div class="col-md-4">Date en vigueur:</div>
+            <input class="col-md-3 ui-input-date ui-input-date-orig"
+                   type="text"
+                   value="">
+        </div>
 
-                var dateOrig = moment($('.ui-input-date-orig').val(), 'YYYY-MM-DD');
-                var dateModif = moment($('.ui-input-date-modif').val(), 'YYYY-MM-DD');
-                var result = dateModif.diff(dateOrig, 'days');
-                var ratio = 1 - precisionRound((result / 365), 3);
+        <div class="row">
+            <div class="col-md-4">Montant de la modification:</div>
+            <input class="col-md-3 ui-input-amount ui-input-amount-modif"
+                   type="text"
+                   value="1000.00">
+            </div>
+        </div>
 
+        <div class="row">
+            <div class="col-md-4">Date de la modification:</div>
+            <input class="col-md-3 ui-input-date ui-input-date-modif"
+                   type="text"
+                   value="">
+        </div>
 
-                var montantModif = numeral($('.ui-input-amount-modif').val());
+        <div class="row">
+            <div class="col-md-4">Taux:</div>
+            <input class="col-md-3 ui-lbl-rate"
+                   type="text"
+                   readonly>
+        </div>
 
-                var montantAnnualized = Math.ceil(montantModif.value() / ratio);
+        <div class="row">
+            <div class="col-md-4">Total:</div>
+            <input class="col-md-3 ui-lbl-total"
+                   type="text"
+                   readonly>
+        </div>
 
+        <br/>
 
-                $('.ui-lbl-rate').text(numeral(ratio).format('0.000'));
-                $('.ui-lbl-total').text(numeral(montantAnnualized).format('0$'));
+        <div class="row text-center">
+            <div class="col-md-7">
+                <button class="ui-btn-calc">Calcul</button>
+            </div>
+        </div>
 
-
-            });
-        });
-    </script>
-
-</head>
-<body class="container">
-
-<h1>
-    Calcul de Prime Annualis&eacute;e avec taux pro-rata
-</h1>
-
-<br/>
-
-<div class="row">
-    <div class="col-md-4 text-right">Date en vigueur (aaaa-mm-jj):</div>
-    <div class="col-md-2"><input class="ui-input-date ui-input-date-orig" type="text" value=""></div>
-</div>
-
-<div class="row">
-    <div class="col-md-4 text-right">Montant de la modification:</div>
-    <div class="col-md-2"><input class="ui-input-amount ui-input-amount-modif" type="text" value="1000.00"></div>
-</div>
-
-<div class="row">
-    <div class="col-md-4 text-right">Date de la modification (aaaa-mm-jj):</div>
-    <div class="col-md-2"><input class="ui-input-date ui-input-date-modif" type="text" value=""></div>
-</div>
-
-
-<div class="row text-center">
-    <div class="col-md-4 text-right">Taux:</div>
-    <div class="col-md-2 text-left ui-lbl-rate"></div>
-</div>
-
-<div class="row text-center">
-    <div class="col-md-4 text-right">Total:</div>
-    <div class="col-md-2 text-left ui-lbl-total"></div>
-</div>
-
-<br/>
-
-<div class="row text-center">
-    <div class="col-md-6">
-        <button class="ui-btn-calc">Calcul</button>
-    </div>
-</div>
-
-
-</body>
+    </body>
 </html>
