@@ -1,0 +1,106 @@
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeral.js/2.0.6/numeral.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/3.3.4/jquery.inputmask.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css"
+          type="text/css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css"
+          type="text/css">
+
+    <style>
+        div.row {
+            margin-top: 5px;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            $('.ui-input-amount').inputmask('decimal', {
+                numericInput: true,
+                rightAlign: false,
+                greedy: false
+            });
+
+            $('.ui-input-date').inputmask({mask: '9999-99-99'});
+            $('.ui-input-date').datepicker({'dateFormat': 'yy-mm-dd'});
+
+            $('.ui-btn-calc').click(function () {
+
+                function precisionRound(number, precision) {
+                    var factor = Math.pow(10, precision);
+                    return Math.round(number * factor) / factor;
+                }
+
+
+                var dateOrig = moment($('.ui-input-date-orig').val(), 'YYYY-MM-DD');
+                var dateModif = moment($('.ui-input-date-modif').val(), 'YYYY-MM-DD');
+                var result = dateModif.diff(dateOrig, 'days');
+                var ratio = 1 - precisionRound((result / 365), 3);
+
+
+                var montantModif = numeral($('.ui-input-amount-modif').val());
+
+                var montantAnnualized = Math.ceil(montantModif.value() / ratio);
+
+
+                $('.ui-lbl-rate').text(numeral(ratio).format('0.000'));
+                $('.ui-lbl-total').text(numeral(montantAnnualized).format('0$'));
+
+
+            });
+        });
+    </script>
+
+</head>
+<body class="container">
+
+<h1>
+    Calcul de Prime Annualis&eacute;e avec taux pro-rata
+</h1>
+
+<br/>
+
+<div class="row">
+    <div class="col-xs-2">Date en vigueur:</div>
+    <div class="col-xs-2"><input class="ui-input-date ui-input-date-orig" type="text" value="2018-01-01"></div>
+    <div class="col-xs-2">aaaa-mm-jj</div>
+</div>
+
+<div class="row">
+    <div class="col-xs-2">Montant de la modification:</div>
+    <div class="col-xs-2"><input class="ui-input-amount ui-input-amount-modif" type="text" value="891.00"></div>
+</div>
+
+<div class="row">
+    <div class="col-xs-2">Date de la modification:</div>
+    <div class="col-xs-2"><input class="ui-input-date ui-input-date-modif" type="text" value="2018-01-31"></div>
+    <div class="col-xs-2">aaaa-mm-jj</div>
+</div>
+
+
+<div class="row text-center">
+    <div class="col-xs-2 text-left">Taux:</div>
+    <div class="col-xs-2 text-left ui-lbl-rate"></div>
+</div>
+
+<div class="row text-center">
+    <div class="col-xs-2 text-left">Total:</div>
+    <div class="col-xs-2 text-left ui-lbl-total"></div>
+</div>
+
+<br/>
+
+<div class="row text-center">
+    <div class="col-xs-4">
+        <button class="ui-btn-calc">Calcul</button>
+    </div>
+</div>
+
+
+</body>
+</html>
